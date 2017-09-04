@@ -33,11 +33,13 @@ class AuthSpnegoMiddleware(object):
                 raise NotAuthorized
         except ValueError:
             username = userstring
+
         kerberos.checkPassword(
             username, password, 
             kerberos.getServerPrincipalDetails('HTTP', settings.SPNEGO_HOSTNAME),
             settings.SPNEGO_REALM
         )
+
         return username
 
     def auth_negotiate(self, auth_header):
@@ -61,19 +63,6 @@ class AuthSpnegoMiddleware(object):
                 kerberos.authGSSServerClean(context)
         return (gssstring, user)
 
-    def auth_kerberos(self, auth_header):
-        split_auth = auth_header.split()
-        if split_auth[0] == 'Basic':
-            try:
-                user = self.auth_basic(split_auth[1])
-            except kerberos.BasicAuthError as e:
-                logging.error('Basic Auth Failed: {}'.format(e))
-                raise NotAuthorized
-        elif split_auth[0] == 'Negotiate':
-            gssstring, user = self.auth_negotiate(split_auth[1])
-        else:
-            raise NotAuthorized
-
     def __call__(self, request):
         if not hasattr(settings, 'SPNEGO_REALM'):
             raise ImproperlyConfigured(
@@ -92,10 +81,26 @@ class AuthSpnegoMiddleware(object):
         
         try:
             try:
-                authorization = request.META['HTTP_AUTHORIZATION']
-                self.auth_kerberos(authorization)
+                split_auth = request.META['HTTP_AUTHORIZATION'].split()
+                if split_auth[0] == 'Basic':
+                    try:
+                        user = self.auth_basic(split_auth[1])
+                    except kerberos.BasicAuthError as e:
+                        logging.error('Basic Auth Failed: {}'.format(e))
+                        raise NotAuthorized
+                elif split_auth[0] == 'Negotiate':
+                    gssstring, user = self.auth_negotiate(split_auth[1])
+                else:
+                    raise NotAuthorized
             except KeyError:
                 raise NotAuthorized
         except NotAuthorized:
             return SpnegoHttpUnauthorized('Unauthorized')
-        return self.get_response(request)
+        
+        # Create the response
+        response = self.get_response(request)
+
+        #If we have a GSS result result add it to the response
+        if gssstring:
+            response['WWW-Authenticate'] = "Negotiate {}".format(gssstring)
+        return response
