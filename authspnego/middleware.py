@@ -23,7 +23,16 @@ class AuthSpnegoMiddleware(object):
 
     def auth_basic(self, auth_header):
         auth_decoded = base64.decodestring(auth_header.encode('utf8')).decode()
-        username, password = auth_decoded.split(':', maxsplit=1)
+        userstring, password = auth_decoded.split(':', maxsplit=1)
+        try:
+            # If the user specifies a realm in the username verify
+            # it matches the configured SPNEGO realm so we 
+            # don't open ourselves up to KDC spoofing
+            username, realm = userstring.split('@', maxsplit=1)
+            if realm != settings.SPNEGO_REALM:
+                raise NotAuthorized
+        except ValueError:
+            username = userstring
         kerberos.checkPassword(
             username, password, 
             kerberos.getServerPrincipalDetails('HTTP', settings.SPNEGO_HOSTNAME),
