@@ -28,7 +28,8 @@ class SpnegoHttpUnauthorized(HttpResponse):
     def items(self):
         yield from super().items()
         yield ('WWW-Authenticate', 'Negotiate')
-        yield ('WWW-Authenticate', 'Basic realm="{}"'.format(settings.SPNEGO_REALM))
+        yield ('WWW-Authenticate', 'Basic realm="{}"'.format(
+            settings.SPNEGO_REALM))
 
 
 class AuthSpnegoMiddleware(object):

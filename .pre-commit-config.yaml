@@ -8,6 +8,7 @@
     -   id: debug-statements
     -   id: end-of-file-fixer
     -   id: trailing-whitespace
+    -   id: flake8
 -   repo: git://github.com/FalconSocial/pre-commit-python-sorter
     sha: b57843b0b874df1d16eb0bef00b868792cb245c2
     hooks:
