@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 
 setup(
     name='django-auth-spnego',
-    version='0.0.1',
+    version='1.0.0',
     author='Matt Magin',
     author_email='matt.azmoo@gmail.com',
     description='SPNEGO-based Kerberos and NTLM authentication in django',
