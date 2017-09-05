@@ -4,7 +4,7 @@ This project provides SPNEGO and Kerberos authentication to a django project. Yo
 or IIS and use Django's RemoteUser middleware for authentication but I don't use those web servers
 and others don't support it.
 
-The actual authorization is done using a middleware that handles the kerberos negotiation and
+The actual authentication is done using a middleware that handles the kerberos negotiation and
 the django user management and login handling implements the incredibly useful
 [django-auth-ldap](https://bitbucket.org/illocution/django-auth-ldap).
 
