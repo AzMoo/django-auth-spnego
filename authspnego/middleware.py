@@ -114,7 +114,6 @@ class AuthSpnegoMiddleware(object):
                     raise NotAuthorized
                 username = krb_username.split('@', maxsplit=1)[0]
                 user = backend.populate_user(username)
-                # user = authenticate(username=username, kerberos=True)
                 if user is not None:
                     login(request, user,
                           backend='django_auth_ldap.backend.LDAPBackend')
