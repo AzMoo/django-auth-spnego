@@ -1,0 +1,18 @@
+-   repo: git://github.com/pre-commit/pre-commit-hooks
+    sha: v0.9.1
+    hooks:
+    -   id: trailing-whitespace
+    -   id: autopep8-wrapper
+    -   id: check-ast
+    -   id: check-merge-conflict
+    -   id: debug-statements
+    -   id: end-of-file-fixer
+    -   id: trailing-whitespace
+-   repo: git://github.com/guykisel/prospector-mirror
+    sha: 'b27f281eb9398fc8504415d7fbdabf119ea8c5e1'
+    hooks:
+    -   id: prospector
+        name: prospector
+        entry: prospector
+        language: system
+        files: \.py$
