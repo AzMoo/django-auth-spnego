@@ -3,9 +3,22 @@ import logging
 import kerberos
 
 from django.conf import settings
+from django.contrib.auth import authenticate, login, load_backend
 from django.core.exceptions import ImproperlyConfigured
 from django.http.response import HttpResponse
-from .exceptions import NotAuthorized
+
+class NotAuthorized(Exception):
+    pass
+
+
+def _get_ldap_backend():
+    backend_path = 'django_auth_ldap.backend.LDAPBackend'
+    if backend_path not in settings.AUTHENTICATION_BACKENDS:
+        raise ImproperlyConfigured(
+            "LDAP Backend has not been defined. django-auth-ldap "
+            "is required to use django-auth-spnego."
+        )
+    return load_backend('django_auth_ldap.backend.LDAPBackend')
 
 
 class SpnegoHttpUnauthorized(HttpResponse):
@@ -17,7 +30,7 @@ class SpnegoHttpUnauthorized(HttpResponse):
         yield ('WWW-Authenticate', 'Basic realm="{}"'.format(settings.SPNEGO_REALM))
 
 
-class AuthSpnegoMiddleware(object):
+class SpnegoAuthMiddleware(object):
     def __init__(self, get_response):
         self.get_response = get_response
 
@@ -78,20 +91,27 @@ class AuthSpnegoMiddleware(object):
                 "SPNEGO_HOSTNAME setting to be configured as the hostname "
                 "the service is authorized for. "
             )
+
+        backend = _get_ldap_backend()
         
         try:
             try:
                 split_auth = request.META['HTTP_AUTHORIZATION'].split()
                 if split_auth[0] == 'Basic':
                     try:
-                        user = self.auth_basic(split_auth[1])
+                        krb_username = self.auth_basic(split_auth[1])
                     except kerberos.BasicAuthError as e:
                         logging.error('Basic Auth Failed: {}'.format(e))
                         raise NotAuthorized
                 elif split_auth[0] == 'Negotiate':
-                    gssstring, user = self.auth_negotiate(split_auth[1])
+                    gssstring, krb_username = self.auth_negotiate(split_auth[1])
                 else:
                     raise NotAuthorized
+                username = krb_username.split('@', maxsplit=1)[0]
+                user = backend.populate_user(username)
+                # user = authenticate(username=username, kerberos=True)
+                if user is not None:
+                    login(request, user, backend='django_auth_ldap.backend.LDAPBackend')
             except KeyError:
                 raise NotAuthorized
         except NotAuthorized:
