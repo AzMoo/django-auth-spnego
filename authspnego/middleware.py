@@ -80,7 +80,36 @@ class AuthSpnegoMiddleware(object):
                 kerberos.authGSSServerClean(context)
         return (gssstring, user)
 
+    def authenticate_user(self, request):
+        backend = _get_ldap_backend()
+        gssstring = None
+
+        try:
+            split_auth = request.META['HTTP_AUTHORIZATION'].split()
+            if split_auth[0] == 'Basic':
+                try:
+                    krb_username = self.auth_basic(split_auth[1])
+                except kerberos.BasicAuthError as e:
+                    logging.error('Basic Auth Failed: %s', e)
+                    raise NotAuthorized
+            elif split_auth[0] == 'Negotiate':
+                gssstring, krb_username = self.auth_negotiate(
+                    split_auth[1])
+            else:
+                raise NotAuthorized
+            username = krb_username.split('@', maxsplit=1)[0]
+            user = backend.populate_user(username)
+            if user is not None:
+                login(request, user,
+                      backend='django_auth_ldap.backend.LDAPBackend')
+        except KeyError:
+            raise NotAuthorized
+
+        return gssstring
+
     def __call__(self, request):
+        gssstring = None
+
         if not hasattr(settings, 'SPNEGO_REALM'):
             raise ImproperlyConfigured(
                 "The Spnego Authentication Middleware requires the "
@@ -96,31 +125,13 @@ class AuthSpnegoMiddleware(object):
                 "the service is authorized for. "
             )
 
-        backend = _get_ldap_backend()
-
-        try:
+        # If the user isn't authenticated (and saved in the session) then
+        # we should attempt to do so.
+        if not request.user.is_authenticated():
             try:
-                split_auth = request.META['HTTP_AUTHORIZATION'].split()
-                if split_auth[0] == 'Basic':
-                    try:
-                        krb_username = self.auth_basic(split_auth[1])
-                    except kerberos.BasicAuthError as e:
-                        logging.error('Basic Auth Failed: %s', e)
-                        raise NotAuthorized
-                elif split_auth[0] == 'Negotiate':
-                    gssstring, krb_username = self.auth_negotiate(
-                        split_auth[1])
-                else:
-                    raise NotAuthorized
-                username = krb_username.split('@', maxsplit=1)[0]
-                user = backend.populate_user(username)
-                if user is not None:
-                    login(request, user,
-                          backend='django_auth_ldap.backend.LDAPBackend')
-            except KeyError:
-                raise NotAuthorized
-        except NotAuthorized:
-            return SpnegoHttpUnauthorized('Unauthorized')
+                gssstring = self.authenticate_user(request)
+            except NotAuthorized:
+                return SpnegoHttpUnauthorized('Unauthorized')
 
         # Create the response
         response = self.get_response(request)
