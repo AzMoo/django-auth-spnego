@@ -1,9 +1,9 @@
 import base64
 import logging
-import kerberos
 
+import kerberos
 from django.conf import settings
-from django.contrib.auth import login, load_backend
+from django.contrib.auth import load_backend, login
 from django.core.exceptions import ImproperlyConfigured
 from django.http.response import HttpResponse
 
