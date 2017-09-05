@@ -30,7 +30,7 @@ class SpnegoHttpUnauthorized(HttpResponse):
         yield ('WWW-Authenticate', 'Basic realm="{}"'.format(settings.SPNEGO_REALM))
 
 
-class SpnegoAuthMiddleware(object):
+class AuthSpnegoMiddleware(object):
     def __init__(self, get_response):
         self.get_response = get_response
 

@@ -9,7 +9,8 @@ setup(
     license='MIT',
     packages=find_packages(),
     install_requires=[
-        'pykerberos==1.1.14',
-        'django-auth-ldap==1.2.1'
+        'django',
+        'pykerberos',
+        'django-auth-ldap'
     ]
 )
