@@ -1,5 +1,8 @@
 # django-auth-spnego
 
+** Warning: This is in super alpha at the moment, I haven't had a chance to do any real testing on it.
+Probably don't use it in production yet. **
+
 This project provides SPNEGO and Kerberos authentication to a django project. You can do this with apache
 or IIS and use Django's RemoteUser middleware for authentication but I don't use those web servers
 and others don't support it.
