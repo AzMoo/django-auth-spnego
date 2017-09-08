@@ -6,6 +6,13 @@ def readme():
         return f.read()
 
 
+# Test Dependencies
+test_deps = [
+    'pytest',
+    'pytest-django',
+    'mockldap'
+]
+
 setup(
     name='django-auth-spnego',
     version='0.1.1',
@@ -38,9 +45,8 @@ setup(
         'django-auth-ldap'
     ],
     python_requires='>=3.4',
-    tests_require=[
-        'pytest',
-        'pytest-django',
-        'mockldap'
-    ]
+    tests_require=test_deps,
+    extras_require={
+        'tests': test_deps
+    }
 )
