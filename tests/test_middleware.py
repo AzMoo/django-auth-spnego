@@ -1,6 +1,7 @@
 from authspnego.middleware import AuthSpnegoMiddleware
-from authspnego.tests.fixtures import *  # noqa
 from django.http import HttpResponse
+
+from .fixtures import *  # noqa
 
 
 def get_response():
