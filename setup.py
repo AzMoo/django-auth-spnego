@@ -37,5 +37,10 @@ setup(
         'kerberos',
         'django-auth-ldap'
     ],
-    python_requires='>=3.4'
+    python_requires='>=3.4',
+    tests_require=[
+        'pytest',
+        'pytest-django',
+        'mockldap'
+    ]
 )
