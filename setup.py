@@ -19,7 +19,7 @@ test_deps = [
 
 setup(
     name='django-auth-spnego',
-    version='0.1.1',
+    version='0.1.2',
     author='Matt Magin',
     author_email='matt.azmoo@gmail.com',
     url='https://github.com/AzMoo/django-auth-spnego',
