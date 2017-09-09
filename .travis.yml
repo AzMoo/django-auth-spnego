@@ -1,12 +1,21 @@
 language: python
 python:
-  - "3.4"
-  - "3.5"
-  - "3.5-dev"
-  - "3.6"
-  - "3.6-dev"
-  - "3.7-dev"
+- '3.4'
+- '3.5'
+- 3.5-dev
+- '3.6'
+- 3.6-dev
+- 3.7-dev
 install:
-  - pip install .[tests]
+- pip install .[tests]
 script:
-  - py.test
+- py.test
+deploy:
+  provider: pypi
+  user: AzMoo
+  password:
+    secure: hrVsOvTI6JyzeiVdzeN7/oxsg/PB72jyfj1MqbcK1tTO8lz77hRdIuRh9l67DLLT00BLH9M3KE58v0gqueVePvh+BXFGibY3TDJdWdDSsL/hjCvQ1BeMffUFUVrZrCgf9VQo+3bcrZJ3Dm+WGZf+iGb+DXqsOiI6XqAWEigbNz5BBZEgj1SOu05d1JgpoaoIQ655DwBkN8NPCV2c+WT/sCvz2bFP/GNnNi9FuEbBhJYsvd+md8txa4+bUrk2uSzLY8pZgSnUP8z/QGrxOK74UNSsZiL8Saj2tJinfbHb/ZtUWJV0+Zp8LD7cJm7RFlJmPy5HRrtvGNQdmqw35v37oU0jm2qEl+JEL7WBcmeJsiwWvjxMUEwQd26+ZnfvvfEUjPSPePUIJapwdYAq1MMzGc2q25ux+E2ly2n/0FicN1IQaAplmRgM3igbi/VMwMLz2zRI+q7EYj5AxNBN3FJo0xXaIdd9GYEWTXQMWnV9timtKXvSfdvQHxKN1CuHBYEEk43eqUdT4GLHHbEF4NQL7w91hCOiLQeykeGxVaG/12CIOTtGytYhhLxxOZFLVHGx45tzb+uo1kefMTyIdZGiQt1FdKHHbAYlOhaSkkT+Y5KKdMUYlTBFzuxHz+9p5uEjvwgI+dUSfTXUPTfKEk4yWZukv6PP+09mV9F/uM1ZHsg=
+  on:
+    tags: true
+  distributions: "sdist bdist_wheel"
+  
