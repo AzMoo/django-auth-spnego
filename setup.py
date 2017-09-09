@@ -1,3 +1,6 @@
+from glob import glob
+from os.path import basename, splitext
+
 from setuptools import find_packages, setup
 
 
@@ -10,6 +13,7 @@ def readme():
 test_deps = [
     'pytest',
     'pytest-django',
+    'pytest-pythonpath',
     'mockldap'
 ]
 
@@ -38,7 +42,10 @@ setup(
         'Topic :: System :: Systems Administration :: Authentication/Directory :: LDAP',  # noqa
     ],
     keywords='django spnego auth ldap middleware',
-    packages=find_packages(),
+    packages=find_packages('src'),
+    package_dir={'': 'src'},
+    py_modules=[splitext(basename(path))[0] for path in glob('src/*.py')],
+    zip_safe=False,
     install_requires=[
         'django',
         'kerberos',
